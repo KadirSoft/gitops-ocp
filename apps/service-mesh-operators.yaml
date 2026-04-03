@@ -4,7 +4,7 @@ metadata:
   name: service-mesh-operators
   namespace: openshift-gitops
 spec:
-  project: default
+  project: lab
   source:
     repoURL: https://github.com/KadirSoft/gitops-ocp
     targetRevision: main
