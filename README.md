@@ -1,1 +1,1 @@
-# gitops-ocp
+# OpenShift GitOps Lab
