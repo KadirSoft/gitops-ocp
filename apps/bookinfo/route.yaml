@@ -1,0 +1,16 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: bookinfo-https              # different name to avoid conflict
+  namespace: istio-system
+spec:
+  host: bookinfo.apps.ocp4.ocplab.online
+  port:
+    targetPort: http2
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  to:
+    kind: Service
+    name: istio-ingressgateway
+    weight: 100
