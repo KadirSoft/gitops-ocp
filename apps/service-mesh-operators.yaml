@@ -4,11 +4,11 @@ metadata:
   name: service-mesh-operators
   namespace: openshift-gitops
 spec:
-  project: lab
+  project: default
   source:
     repoURL: https://github.com/KadirSoft/gitops-ocp
     targetRevision: main
-    path: manifests/service-mesh/operators
+    path: apps/service-mesh/operators
   destination:
     server: https://kubernetes.default.svc
     namespace: openshift-operators
@@ -18,3 +18,33 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true          # Critical for OLM resources
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+    - group: operators.coreos.com
+      kind: Subscription
+      jsonPointers:
+        - /status
+        - /spec/installPlanApproval
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: service-mesh-controlplane
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/KadirSoft/gitops-ocp
+    targetRevision: main
+    path: apps/service-mesh/controlplane
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: istio-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
