@@ -1,0 +1,9 @@
+apiVersion: maistra.io/v1
+kind: ServiceMeshMemberRoll
+metadata:
+  name: default              # MUST be named "default" — this is mandatory
+  namespace: istio-system
+spec:
+  members:
+    - bookinfo               # We'll use this demo app namespace later
+    # Add your app namespaces here as you onboard them

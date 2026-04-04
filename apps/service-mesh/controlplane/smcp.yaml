@@ -1,0 +1,48 @@
+apiVersion: maistra.io/v2
+kind: ServiceMeshControlPlane
+metadata:
+  name: basic
+  namespace: istio-system
+spec:
+  version: v2.6
+  
+  tracing:
+    type: None              # We use Tempo separately (not built-in Jaeger)
+    
+  addons:
+    kiali:
+      enabled: true
+      name: kiali
+    grafana:
+      enabled: true
+    prometheus:
+      enabled: true
+
+  proxy:
+    accessLogging:
+      file:
+        name: /dev/stdout   # Envoy access logs → visible via oc logs
+    networking:
+      trafficControl:
+        outbound:
+          policy: REGISTRY_ONLY  # Enterprise best practice — deny unknown egress
+
+  gateways:
+    ingress:
+      enabled: true
+      service:
+        type: ClusterIP     # Use ClusterIP on compact cluster, expose via OCP Route
+    egress:
+      enabled: true
+
+  runtime:
+    components:
+      pilot:
+        container:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi  # Tuned for compact 3-node cluster
