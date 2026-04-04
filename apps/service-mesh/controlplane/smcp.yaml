@@ -13,11 +13,14 @@ spec:
     kiali:
       enabled: true
       name: kiali
-    grafana:
-      enabled: true
-    prometheus:
-      enabled: true
-
+      install:
+        dashboard:
+          viewOnly: false
+        deployment:
+          accessible_namespaces:
+            - bookinfo
+            - istio-system
+          cluster_wide_access: false
   proxy:
     accessLogging:
       file:
