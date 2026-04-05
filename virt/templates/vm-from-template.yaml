@@ -6,7 +6,7 @@ metadata:
   labels:
     app: rhel9-gitops-vm
 spec:
-  running: false
+  running: true
   template:
     metadata:
       labels:
