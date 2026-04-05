@@ -1,0 +1,78 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: rhel9-gitops-vm
+  namespace: vms
+  labels:
+    app: rhel9-gitops-vm
+spec:
+  # false = defined but not started yet
+  # We'll start it manually after ArgoCD syncs — safer for first deploy
+  running: false
+
+  template:
+    metadata:
+      labels:
+        kubevirt.io/domain: rhel9-gitops-vm
+    spec:
+      domain:
+        cpu:
+          cores: 1
+          sockets: 2      # 2 vCPUs total
+          threads: 1
+        memory:
+          guest: 4Gi
+        devices:
+          disks:
+            - name: rootdisk
+              disk:
+                bus: virtio
+              bootOrder: 1
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+          interfaces:
+            - name: default
+              masquerade: {}   # NAT via pod network — simplest option
+          rng: {}              # Hardware RNG — required for entropy inside VM
+
+      networks:
+        - name: default
+          pod: {}
+
+      # VM stays alive during node drain — migrates instead of dying
+      evictionStrategy: LiveMigrate
+
+      volumes:
+        - name: rootdisk
+          dataVolume:
+            name: rhel9-gitops-vm-rootdisk
+
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              user: cloud-user
+              password: redhat123
+              chpasswd:
+                expire: false
+
+      terminationGracePeriodSeconds: 180
+
+  # DataVolumeTemplate clones the RHEL9 boot snapshot into a new PVC for this VM
+  # Each VM gets its own independent disk — changes don't affect the source image
+  dataVolumeTemplates:
+    - metadata:
+        name: rhel9-gitops-vm-rootdisk
+      spec:
+        storage:
+          storageClassName: ocs-storagecluster-ceph-rbd-virtualization
+          accessModes:
+            - ReadWriteMany    # RWX required for live migration
+          resources:
+            requests:
+              storage: 30Gi
+        source:
+          pvc:
+            namespace: openshift-virtualization-os-images
+            name: rhel9-ab4ec16077fe    # The snapshot PVC we confirmed earlier

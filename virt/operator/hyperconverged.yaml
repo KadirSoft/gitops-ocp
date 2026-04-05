@@ -1,0 +1,75 @@
+apiVersion: hco.kubevirt.io/v1beta1
+kind: HyperConverged
+metadata:
+  name: kubevirt-hyperconverged
+  namespace: openshift-cnv
+spec:
+  # Certificate rotation config
+  certConfig:
+    ca:
+      duration: 48h0m0s
+      renewBefore: 24h0m0s
+    server:
+      duration: 24h0m0s
+      renewBefore: 12h0m0s
+
+  # VM console proxy — disabled (not needed unless using noVNC via API)
+  deployVmConsoleProxy: false
+
+  # Quota management for VMs — disabled
+  enableApplicationAwareQuota: false
+
+  # Pull Red Hat common OS images automatically
+  enableCommonBootImageImport: true
+
+  # Default eviction strategy for ALL VMs in the cluster
+  # LiveMigrate = VM moves to another node during drain (no downtime)
+  evictionStrategy: LiveMigrate
+
+  featureGates:
+    alignCPUs: false
+    decentralizedLiveMigration: false
+    declarativeHotplugVolumes: false
+    deployKubeSecondaryDNS: false
+    disableMDevConfiguration: false
+    downwardMetrics: false
+    enableCommonBootImageImport: true
+    enableMultiArchBootImageImport: false
+    nonRoot: true                    # Run VM workloads as non-root (security)
+    persistentReservation: false
+
+  # Memory overcommit — 100 means no overcommit (1:1 ratio)
+  # Increase to e.g. 150 to fit more VMs than physical RAM allows
+  higherWorkloadDensity:
+    memoryOvercommitPercentage: 100
+
+  infra: {}      # No node selector — CNV infra pods run anywhere
+  workloads: {}  # No node selector — VM workloads run anywhere
+
+  # Live migration bandwidth and timeout tuning
+  liveMigrationConfig:
+    allowAutoConverge: false     # Don't throttle vCPUs to force migration completion
+    allowPostCopy: false         # Post-copy is risky — VM depends on source node
+    bandwidthPerMigration: 512Mi # Network cap per migration
+    completionTimeoutPerGiB: 800 # Abort if not done in this many seconds per GiB RAM
+    parallelMigrationsPerCluster: 2
+    parallelOutboundMigrationsPerNode: 1
+    progressTimeout: 150         # Abort if no progress for 150s
+
+  # CPU overcommit ratio — 10 means 10 vCPUs per physical core
+  resourceRequirements:
+    vmiCPUAllocationRatio: 10
+
+  # Prevent accidental CNV uninstall while VMs are running
+  uninstallStrategy: BlockUninstallIfWorkloadsExist
+
+  virtualMachineOptions:
+    disableFreePageReporting: false
+    disableSerialConsoleLog: false
+
+  # How CNV updates running VMs when operator is upgraded
+  workloadUpdateStrategy:
+    batchEvictionInterval: 1m0s
+    batchEvictionSize: 10
+    workloadUpdateMethods:
+    - LiveMigrate   # Migrate VMs live instead of restarting them during upgrades
