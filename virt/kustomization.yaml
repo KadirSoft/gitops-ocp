@@ -5,3 +5,4 @@ resources:
   - namespace/vms-namespace.yaml
   - operator/hyperconverged.yaml
   - templates/vm-from-template.yaml
+  - templates/rhel8-vm-01.yaml

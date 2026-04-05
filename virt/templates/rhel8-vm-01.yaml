@@ -1,0 +1,67 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: rhel8-vm-01
+  namespace: vms
+  labels:
+    app: rhel8-vm-01
+spec:
+  running: true
+
+  instancetype:
+    kind: VirtualMachineClusterInstancetype
+    name: u1.small           # 1 vCPU, 2Gi RAM
+
+  preference:
+    kind: VirtualMachineClusterPreference
+    name: rhel.8             # RHEL8 specific disk/NIC/firmware settings
+
+  template:
+    metadata:
+      labels:
+        kubevirt.io/domain: rhel8-vm-01
+    spec:
+      evictionStrategy: LiveMigrate
+      terminationGracePeriodSeconds: 180
+      networks:
+        - name: default
+          pod: {}
+      volumes:
+        - name: rootdisk
+          dataVolume:
+            name: rhel8-vm-01-rootdisk
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              user: cloud-user
+              password: redhat123
+              chpasswd:
+                expire: false
+      domain:
+        devices:
+          disks:
+            - name: rootdisk
+              disk: {}
+              bootOrder: 1
+            - name: cloudinitdisk
+              disk: {}
+          interfaces:
+            - name: default
+              masquerade: {}
+
+  dataVolumeTemplates:
+    - metadata:
+        name: rhel8-vm-01-rootdisk
+      spec:
+        storage:
+          storageClassName: ocs-storagecluster-ceph-rbd-virtualization
+          accessModes:
+            - ReadWriteMany
+          resources:
+            requests:
+              storage: 30Gi
+        source:
+          snapshot:
+            namespace: openshift-virtualization-os-images
+            name: rhel8-004e24cfacec    # confirmed earlier
