@@ -7,35 +7,29 @@ metadata:
     app: rhel9-gitops-vm
 spec:
   running: true
+
+  # ── Instancetype and Preference ──────────────────────────────────────────
+  # These two lines replace ~20 lines of hardcoded CPU/RAM/device config
+  instancetype:
+    kind: VirtualMachineClusterInstancetype
+    name: u1.medium          # 1 vCPU, 4Gi RAM — general purpose
+
+  preference:
+    kind: VirtualMachineClusterPreference
+    name: rhel.9             # virtio disk/NIC, UEFI secure boot, RNG — all handled
+
   template:
     metadata:
       labels:
         kubevirt.io/domain: rhel9-gitops-vm
     spec:
-      domain:
-        cpu:
-          cores: 1
-          sockets: 2
-          threads: 1
-        memory:
-          guest: 4Gi
-        devices:
-          disks:
-            - name: rootdisk
-              disk:
-                bus: virtio
-              bootOrder: 1
-            - name: cloudinitdisk
-              disk:
-                bus: virtio
-          interfaces:
-            - name: default
-              masquerade: {}
-          rng: {}
+      evictionStrategy: LiveMigrate
+      terminationGracePeriodSeconds: 180
+
       networks:
         - name: default
           pod: {}
-      evictionStrategy: LiveMigrate
+
       volumes:
         - name: rootdisk
           dataVolume:
@@ -48,7 +42,19 @@ spec:
               password: redhat123
               chpasswd:
                 expire: false
-      terminationGracePeriodSeconds: 180
+
+      domain:
+        devices:
+          disks:
+            - name: rootdisk
+              disk: {}
+              bootOrder: 1
+            - name: cloudinitdisk
+              disk: {}
+          interfaces:
+            - name: default
+              masquerade: {}
+
   dataVolumeTemplates:
     - metadata:
         name: rhel9-gitops-vm-rootdisk
@@ -61,6 +67,6 @@ spec:
             requests:
               storage: 30Gi
         source:
-          snapshot:                               # ← changed from pvc to snapshot
+          snapshot:
             namespace: openshift-virtualization-os-images
-            name: rhel9-ab4ec16077fe             # ← the VolumeSnapshot we confirmed
+            name: rhel9-ab4ec16077fe
