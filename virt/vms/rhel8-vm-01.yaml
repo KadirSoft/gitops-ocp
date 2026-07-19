@@ -7,15 +7,27 @@ metadata:
     app: rhel8-vm-01
 spec:
   running: true
-
   instancetype:
     kind: VirtualMachineClusterInstancetype
-    name: u1.small           # 1 vCPU, 2Gi RAM
-
+    name: u1.small
   preference:
     kind: VirtualMachineClusterPreference
-    name: rhel.8             # RHEL8 specific disk/NIC/firmware settings
-
+    name: rhel.8
+  dataVolumeTemplates:
+    - metadata:
+        name: rhel8-vm-01-rootdisk
+      spec:
+        storage:
+          storageClassName: ocs-storagecluster-ceph-rbd-virtualization
+          accessModes:
+            - ReadWriteMany
+          resources:
+            requests:
+              storage: 30Gi
+        sourceRef:
+          kind: DataSource
+          name: rhel8
+          namespace: openshift-virtualization-os-images
   template:
     metadata:
       labels:
@@ -49,19 +61,3 @@ spec:
           interfaces:
             - name: default
               masquerade: {}
-
-  dataVolumeTemplates:
-    - metadata:
-        name: rhel8-vm-01-rootdisk
-      spec:
-        storage:
-          storageClassName: ocs-storagecluster-ceph-rbd-virtualization
-          accessModes:
-            - ReadWriteMany
-          resources:
-            requests:
-              storage: 30Gi
-        sourceRef:
-          kind: DataSource
-          name: rhel8
-          namespace: openshift-virtualization-os-images
