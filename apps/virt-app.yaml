@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/KadirSoft/gitops-ocp
-    targetRevision: labs/ocp-virt
+    targetRevision: lab/ocp-virt
     path: virt
   destination:
     server: https://kubernetes.default.svc
