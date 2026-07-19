@@ -3,6 +3,9 @@ kind: Kustomization
 
 resources:
   - namespace/vms-namespace.yaml
+  - operator/namespace.yaml
+  - operator/operatorgroup.yaml
+  - operator/subscription.yaml
   - operator/hyperconverged.yaml
   - templates/vm-from-template.yaml
   - templates/rhel8-vm-01.yaml
