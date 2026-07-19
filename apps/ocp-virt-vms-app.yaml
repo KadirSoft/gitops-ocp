@@ -17,6 +17,9 @@ spec:
       kind: VirtualMachine
       jqPathExpressions:
         - '.spec.template.spec.domain'
+        - '.spec.template.spec.architecture'
+        - '.spec.instancetype.revisionName'
+        - '.spec.preference.revisionName'
         - '.metadata.annotations."kubectl.kubernetes.io/last-applied-configuration"'
   syncPolicy:
     automated:
