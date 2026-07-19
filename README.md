@@ -11,7 +11,7 @@ any fresh OpenShift cluster with two `oc apply` commands.
 Active work lives on `lab/ocp-virt`, not `main`.
 
 ## Architecture
-
+```
 bootstrap/
 ├── argocd-app-of-apps.yaml     # the ONE manifest you apply manually
 └── rbac/
@@ -23,7 +23,7 @@ virt/
 ├── operator/                   # CNV operator install (namespace, OperatorGroup,
 │                                # Subscription, HyperConverged CR)
 └── vms/                        # VirtualMachine definitions
-
+```
 **Pattern:** `root-app` (App-of-Apps) watches `apps/`. Each file there is itself an
 Argo CD `Application` pointing at a subfolder of `virt/`. This keeps the operator
 install and the VM workloads as two independent, separately-syncing units — a
