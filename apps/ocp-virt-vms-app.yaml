@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ocp-virt-vms
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/KadirSoft/gitops-ocp
+    targetRevision: lab/ocp-virt
+    path: virt/vms
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vms
+  ignoreDifferences:
+    - group: kubevirt.io
+      kind: VirtualMachine
+      jqPathExpressions:
+        - '.spec.template.spec.domain'
+        - '.spec.template.spec.architecture'
+        - '.spec.instancetype.revisionName'
+        - '.spec.preference.revisionName'
+        - '.metadata.annotations'
+        - '.metadata.finalizers'
+        - '.metadata.generation'
+        - '.metadata.resourceVersion'
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 15s
+        factor: 2
+        maxDuration: 3m
