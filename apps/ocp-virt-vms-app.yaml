@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ocp-virt
+  name: ocp-virt-vms
   namespace: openshift-gitops
 spec:
   project: default
   source:
     repoURL: https://github.com/KadirSoft/gitops-ocp
     targetRevision: lab/ocp-virt
-    path: virt
+    path: virt/vms
   destination:
     server: https://kubernetes.default.svc
-    namespace: openshift-cnv
+    namespace: vms
   ignoreDifferences:
     - group: kubevirt.io
       kind: VirtualMachine
@@ -25,7 +25,6 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-      - SkipDryRunOnMissingResource=true
     retry:
       limit: 5
       backoff:
