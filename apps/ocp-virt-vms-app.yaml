@@ -20,7 +20,7 @@ spec:
         - '.spec.template.spec.architecture'
         - '.spec.instancetype.revisionName'
         - '.spec.preference.revisionName'
-        - '.spec.dataVolumeTemplates[].metadata.creationTimestamp'
+        - '.spec.dataVolumeTemplates[0].metadata.creationTimestamp'
         - '.metadata.annotations'
         - '.metadata.finalizers'
         - '.metadata.generation'
