@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - rhel8-vm-01.yaml
+  - rhel9-vm-01.yaml
