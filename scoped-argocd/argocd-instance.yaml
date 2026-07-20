@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1beta1
+kind: ArgoCD
+metadata:
+  name: team-dev-argocd
+  namespace: team-dev
+spec:
+  server:
+    route:
+      enabled: true
+  sso:
+    provider: dex
+    dex:
+      openShiftOAuth: true
+  rbac:
+    defaultPolicy: 'role:admin'
+    policy: |
+      g, system:authenticated, role:admin
