@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-scoped-argocd
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/KadirSoft/gitops-ocp
+    targetRevision: lab/scoped-argocd
+    path: scoped-argocd
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: team-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
